@@ -77,6 +77,7 @@ class BowlingScorerSpec extends WordSpec with Matchers {
   """.stripMargin
 
   "Bowling scorer" should {
+    import BowlingScorer._
     "understand all misses" in {
       parseGame("--|--|--|--|--|--|--|--|--|--||") should equal (0)
     }
@@ -111,14 +112,5 @@ class BowlingScorerSpec extends WordSpec with Matchers {
     "score '9-|9-|9-|9-|9-|9-|9-|9-|9-|9-||' as 90" in pending
     "score '5/|5/|5/|5/|5/|5/|5/|5/|5/|5/||5' as 150" in pending
     "score 'X|7/|9-|X|-8|8/|-6|X|X|X||81' as 167" in pending
-  }
-
-  def parseGame(game: String): Int = game.split('|').map(parseFrame).sum
-
-  def parseFrame(frame: String): Int = frame.map(parsePoint).sum
-
-  def parsePoint(point: Char): Int = point match {
-    case '-' => 0
-    case d if '1' <= d && d <= '9' => d.asDigit
   }
 }
