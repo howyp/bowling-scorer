@@ -1,14 +1,19 @@
-object BowlingScorer {
-  def parseGame(game: String): Int = {
-    val frames = game.split('|')
-    if (frames.length != 10) throw new IllegalArgumentException
-    frames.map(parseFrame).sum
+import scala.util.parsing.combinator.RegexParsers
+
+object BowlingScorer extends RegexParsers {
+  def parseGame(g: String): Int = {
+    parseAll(game, g) match {
+      case Success(l, _) => l.sum
+      case Failure(msg, _) => throw new IllegalArgumentException(msg)
+    }
   }
 
-  def parseFrame(frame: String): Int = frame.map(parsePoint).sum
+  def game: Parser[List[Int]] = repN(10, frame <~ "|") <~ "|"
 
-  def parsePoint(point: Char): Int = point match {
-    case '-' => 0
-    case d if '1' <= d && d <= '9' => d.asDigit
-  }
+  def frame: Parser[Int] = (point ~ point) ^^ { case p1 ~ p2 => p1 + p2 }
+
+  def point: Parser[Int] = miss | number
+
+  def number: Parser[Int] = "[1-9]".r ^^ (_.toInt)
+  def miss: Parser[Int] = "-" ^^^ 0
 }

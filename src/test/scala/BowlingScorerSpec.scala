@@ -118,9 +118,11 @@ class BowlingScorerSpec extends WordSpec with Matchers with PropertyChecks {
     "score 'X|7/|9-|X|-8|8/|-6|X|X|X||81' as 167" in pending
     "parse a valid game" in {
       import Gen._
-      val point = Gen.oneOf(choose(1,9).map(_.toString), const('-'))
-      forAll(listOfN(10, point)) { points =>
-        parseGame(points.mkString("|") + "||") should be >= 0
+      val point = Gen.oneOf(choose(1,9).map(_.toString), const("-"))
+      val frame = for (p1 <- point; p2 <- point) yield p1 + p2
+      forAll(listOfN(10, frame)) { frames =>
+        val game = frames.mkString("|") + "||"
+        parseGame(game) should be >= 0
       }
     }
   }
