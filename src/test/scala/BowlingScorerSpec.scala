@@ -1,6 +1,8 @@
+import java.lang.Integer
+
 import org.scalatest._
 
-class BowlingScorerSpec extends FlatSpec with Matchers {
+class BowlingScorerSpec extends WordSpec with Matchers {
   """
     |Write a program to score a game of Ten-Pin Bowling.
     |
@@ -74,7 +76,49 @@ class BowlingScorerSpec extends FlatSpec with Matchers {
     |Total score == 167
   """.stripMargin
 
-  "Hello" should "have tests" in {
-    true should === (true)
+  "Bowling scorer" should {
+    "understand all misses" in {
+      parseGame("--|--|--|--|--|--|--|--|--|--||") should equal (0)
+    }
+    "understand all ones" in {
+      parseGame("11|11|11|11|11|11|11|11|11|11||") should equal (20)
+    }
+    "understand all ones and misses" in {
+      parseGame("1-|1-|1-|1-|1-|1-|1-|1-|1-|1-||") should equal (10)
+    }
+    "understand all twos and misses" in {
+      parseGame("2-|2-|2-|2-|2-|2-|2-|2-|2-|2-||") should equal (20)
+    }
+    "understand all misses and threes" in {
+      parseGame("-3|-3|-3|-3|-3|-3|-3|-3|-3|-3||") should equal (30)
+    }
+    "understand one of each number" in {
+      parseGame("1-|2-|3-|4-|5-|6-|7-|8-|9-|1-||") should equal (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 1)
+    }
+    "understand mostly fives and spares but with fives in 10th frame" in pending
+    "understand mostly fives and strikes but with fives in 10th frame" in pending
+    "understand mostly ones but with strike in 10th frame and ones for both bonus balls" in pending
+    "understand mostly ones but with spare in 10th frame and a one for the bonus ball" in pending
+    "reject two strikes in one frame" in pending
+    "reject a spare as the first point in a frame" in pending
+    "reject a strike as the second point in a frame" in pending
+    "reject an 11-frame game" in pending
+    "reject an 9-frame game" in pending
+    "reject bonus balls if no spare in 10th frame" in pending
+    "reject bonus balls if no strike in 10th frame" in pending
+    "reject one bonus ball if strike in 10th frame" in pending
+    "score 'X|X|X|X|X|X|X|X|X|X||XX' as 300" in pending
+    "score '9-|9-|9-|9-|9-|9-|9-|9-|9-|9-||' as 90" in pending
+    "score '5/|5/|5/|5/|5/|5/|5/|5/|5/|5/||5' as 150" in pending
+    "score 'X|7/|9-|X|-8|8/|-6|X|X|X||81' as 167" in pending
+  }
+
+  def parseGame(game: String): Int = game.split('|').map(parseFrame).sum
+
+  def parseFrame(frame: String): Int = frame.map(parsePoint).sum
+
+  def parsePoint(point: Char): Int = point match {
+    case '-' => 0
+    case d if '1' <= d && d <= '9' => d.asDigit
   }
 }
