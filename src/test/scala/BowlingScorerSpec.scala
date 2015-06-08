@@ -103,8 +103,12 @@ class BowlingScorerSpec extends WordSpec with Matchers with PropertyChecks {
     "reject two strikes in one frame" in pending
     "reject a spare as the first point in a frame" in pending
     "reject a strike as the second point in a frame" in pending
-    "reject an 11-frame game" in pending
-    "reject an 9-frame game" in pending
+    "reject an 11-frame game" in {
+      an [IllegalArgumentException] should be thrownBy parseGame("11|11|11|11|11|11|11|11|11|11|11||")
+    }
+    "reject an 9-frame game" in {
+      an [IllegalArgumentException] should be thrownBy parseGame("11|11|11|11|11|11|11|11|11||")
+    }
     "reject bonus balls if no spare in 10th frame" in pending
     "reject bonus balls if no strike in 10th frame" in pending
     "reject one bonus ball if strike in 10th frame" in pending

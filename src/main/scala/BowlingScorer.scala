@@ -1,5 +1,9 @@
 object BowlingScorer {
-  def parseGame(game: String): Int = game.split('|').map(parseFrame).sum
+  def parseGame(game: String): Int = {
+    val frames = game.split('|')
+    if (frames.length != 10) throw new IllegalArgumentException
+    frames.map(parseFrame).sum
+  }
 
   def parseFrame(frame: String): Int = frame.map(parsePoint).sum
 
