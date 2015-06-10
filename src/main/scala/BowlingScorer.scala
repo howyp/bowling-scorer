@@ -22,7 +22,8 @@ object BowlingScorer extends RegexParsers {
     (point ~  point) ^^ { case p1 ~ p2 => Bonus(p1, p2) } |
     (point <~ "/"  ) ^^ { p1 => Bonus(p1, 10 - p1) } |
     ("X"   ~> point) ^^ { p2 => Bonus(10, p2) } |
-    ("X"   ~  "X"  ) ^^^ { Bonus(10, 10) }
+    ("X"   ~  "X"  ) ^^^ { Bonus(10, 10) } |
+    point            ^^ { p1 => Bonus(p1, 0) }
 
 
   def point: Parser[Int] = miss | number
@@ -32,7 +33,7 @@ object BowlingScorer extends RegexParsers {
 
   def score(frames: List[Frame]): Int = frames match {
     case Nil |
-         Bonus(_, _)     :: Nil   => 0
+         Bonus(_, _)     :: _     => 0
     case Regular(b1, b2) :: tail  => b1 + b2 + score(tail)
     case Spare(_)        :: tail  => 10 + ball1(tail) + score(tail)
     case Strike          :: tail  => 10 + ball1(tail) + ball2(tail) + score(tail)

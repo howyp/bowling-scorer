@@ -119,9 +119,15 @@ class BowlingScorerSpec extends WordSpec with Matchers with PropertyChecks {
     "score 'X|X|X|X|X|X|X|X|X|X||XX' as 300" in {
       parseGame("X|X|X|X|X|X|X|X|X|X||XX") should equal (300)
     }
-    "score '9-|9-|9-|9-|9-|9-|9-|9-|9-|9-||' as 90" in pending
-    "score '5/|5/|5/|5/|5/|5/|5/|5/|5/|5/||5' as 150" in pending
-    "score 'X|7/|9-|X|-8|8/|-6|X|X|X||81' as 167" in pending
+    "score '9-|9-|9-|9-|9-|9-|9-|9-|9-|9-||' as 90" in {
+      parseGame("9-|9-|9-|9-|9-|9-|9-|9-|9-|9-||") should equal (90)
+    }
+    "score '5/|5/|5/|5/|5/|5/|5/|5/|5/|5/||5' as 150" in {
+      parseGame("5/|5/|5/|5/|5/|5/|5/|5/|5/|5/||5") should equal (150)
+    }
+    "score 'X|7/|9-|X|-8|8/|-6|X|X|X||81' as 167" in {
+      parseGame("X|7/|9-|X|-8|8/|-6|X|X|X||81") should equal (167)
+    }
     "parse a valid game" in {
       import Gen._
       val point = Gen.oneOf(choose(1,9).map(_.toString), const("-"))
