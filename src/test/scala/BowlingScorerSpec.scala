@@ -1,4 +1,4 @@
-import org.scalacheck.{Gen, Arbitrary}
+import org.scalacheck.Gen
 import org.scalatest._
 import org.scalatest.prop.PropertyChecks
 
@@ -99,7 +99,9 @@ class BowlingScorerSpec extends WordSpec with Matchers with PropertyChecks {
     "understand mostly fives and spares but with fives in 10th frame" in {
       parseGame("5/|5/|5/|5/|5/|5/|5/|5/|5/|5-||") should equal (9 * 15 + 5)
     }
-    "understand mostly fives and strikes but with fives in 10th frame" in pending
+    "understand mostly strikes but with fives in 10th frame" in {
+      parseGame("X|X|X|X|X|X|X|X|X|5-||") should equal (255)
+    }
     "understand mostly ones but with strike in 10th frame and ones for both bonus balls" in pending
     "understand mostly ones but with spare in 10th frame and a one for the bonus ball" in pending
     "reject two strikes in one frame" in pending
@@ -114,7 +116,9 @@ class BowlingScorerSpec extends WordSpec with Matchers with PropertyChecks {
     "reject bonus balls if no spare in 10th frame" in pending
     "reject bonus balls if no strike in 10th frame" in pending
     "reject one bonus ball if strike in 10th frame" in pending
-    "score 'X|X|X|X|X|X|X|X|X|X||XX' as 300" in pending
+    "score 'X|X|X|X|X|X|X|X|X|X||XX' as 300" in {
+      parseGame("X|X|X|X|X|X|X|X|X|X||XX") should equal (300)
+    }
     "score '9-|9-|9-|9-|9-|9-|9-|9-|9-|9-||' as 90" in pending
     "score '5/|5/|5/|5/|5/|5/|5/|5/|5/|5/||5' as 150" in pending
     "score 'X|7/|9-|X|-8|8/|-6|X|X|X||81' as 167" in pending
