@@ -97,7 +97,7 @@ class BowlingScorerSpec extends WordSpec with Matchers with PropertyChecks {
       parseGame("1-|2-|3-|4-|5-|6-|7-|8-|9-|1-||") should equal (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 1)
     }
     "understand mostly fives and spares but with fives in 10th frame" in {
-      parseGame("5/|5/|5/|5/|5/|5/|5/|5/|5/|5-||") should equal (135)
+      parseGame("5/|5/|5/|5/|5/|5/|5/|5/|5/|5-||") should equal (9 * 15 + 5)
     }
     "understand mostly fives and strikes but with fives in 10th frame" in pending
     "understand mostly ones but with strike in 10th frame and ones for both bonus balls" in pending

@@ -13,7 +13,7 @@ object BowlingScorer extends RegexParsers {
 
   def frame: Parser[Frame] =
     (point ~ point) ^^ { case p1 ~ p2 => Points(p1, p2) } |
-    point ~> "/" ^^^ Spare
+    (point <~ "/" ) ^^ { Spare(_) }
 
   def point: Parser[Int] = miss | number
 
@@ -22,11 +22,11 @@ object BowlingScorer extends RegexParsers {
 
   def score(frames: List[Frame]): Int = frames match {
     case Nil => 0
-    case Points(ball1, ball2) :: remainingFrames => ball1 + ball2 + score(remainingFrames)
-    case Spare :: remainingFrames => 10 + score(remainingFrames.headOption.toList) + score(remainingFrames)
+    case Points(ball1, ball2) :: remainingFrames => ball1 + ball2                                    + score(remainingFrames)
+    case Spare(_)             :: remainingFrames => 10    + remainingFrames.headOption.fold(0)(_.ball1) + score(remainingFrames)
   }
 }
 
-sealed trait Frame
+sealed trait Frame { def ball1: Int }
 case class Points(ball1: Int, ball2: Int) extends Frame
-case object Spare extends Frame
+case class Spare(ball1: Int) extends Frame
