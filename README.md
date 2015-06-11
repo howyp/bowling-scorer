@@ -1,13 +1,18 @@
 # bowling-scorer
 
-A implementaion of the Bowling Game excercise from [Cyberdojo](http://cyber-dojo.org/) in Scala. 
+[![Build Status](https://travis-ci.org/howyp/bowling-scorer.svg?branch=master)](https://travis-ci.org/howyp/bowling-scorer)
+
+A solution that I cooked up in Scala to [Cyberdojo](http://cyber-dojo.org/)'s Bowling Game excercise, showing some handy features of Scala such as parser combinators, algebraic data types and pattern matching.
+
+[The Problem](#the-problem) <br>
+[My Solution](#my-solution)
 
 ## The Problem
 
 Write a program to score a game of Ten-Pin Bowling.
 
-**Input**: string (described below) representing a bowling game <br>
-**Ouput**: integer score
+**Input**: `String` (described below) representing a bowling game <br>
+**Ouput**: `Int` score
 
 ### The scoring rules
 
@@ -74,3 +79,69 @@ Total score == 10 frames x 15 == 150
 
 * `X|7/|9-|X|-8|8/|-6|X|X|X||81` <br>
 Total score == 167
+
+## My Solution
+I split the problem into a parser which generates an intermediate data structure, and a calculator which determines the score based on that structure.
+
+
+####1. Data Structure - `List[Frame]`
+The intermediate structure is a list of `Frame`s, an algeraic data type:
+
+```scala
+sealed trait Frame
+case class Regular(ball1: Int, ball2: Int) extends Frame
+case class Bonus(ball1: Int, ball2: Int) extends Frame
+case class Spare(ball1: Int) extends Frame
+case object Strike extends Frame
+
+```
+
+This will be quite convinient when calculating the score, as different types of frames have different numbers of balls and different rules for how they are scored. 
+
+####2. Parsing - `BowlingScoreParser` 
+For parsing, Scala a has very nice functional parsing library called *parser combinators*. This allows us to build complex parsers out of combinations of simple ones. 
+
+We start with parsers for our basic points. A point is either a `miss` or a `number`:
+
+```scala
+def point: Parser[Int] = miss | number
+```
+
+A `miss` is simply a `-` character, and should be treated as a score of 0. Otherwise, we expect a point to be `number`, ie. a integer between 1 and 9:
+
+```scala
+def miss: Parser[Int] = "-" ^^^ 0
+def number: Parser[Int] = "[1-9]".r ^^ (_.toInt)
+```
+
+From this, we can build a general parser for frames. This parses `X` as a `Strike`, a point followed by a `/` as a `Spare`, and two normal points as a `Regular`:
+
+```scala
+def frame: Parser[Frame] =
+  (point ~ point) ^^  { case p1 ~ p2 => Regular(p1, p2) } |
+  (point <~ "/" ) ^^  { Spare(_) } |
+  "X"             ^^^ { Strike }
+```
+
+We also need a way of parsing the bonus balls. These are different from a normal frame because:
+
+* They do not increase the score themselves, only influence the score of the last frame
+* They may contain multiple strikes
+
+They are therefore parsed as a `Bonus`. There are only specific combinations of bonus balls that are allowed.
+
+```scala
+def bonusBalls: Parser[Bonus] =
+  (point ~  point) ^^  { case p1 ~ p2 => Bonus(p1, p2)      } |
+  (point <~ "/"  ) ^^  {           p1 => Bonus(p1, 10 - p1) } |
+  ("X"   ~> point) ^^  {           p2 => Bonus(10, p2)      } |
+  ("X"   ~  "X"  ) ^^^ {                 Bonus(10, 10)      } |
+  point            ^^  {           p1 => Bonus(p1, 0)       }
+```
+
+Finally, we need a parser for the whole scorecard. A `game` is exactly 10 `frame`s, separated by `|`, followed by the final `|` and optionally some `bonusBalls`:
+
+```scala
+  def game: Parser[List[Frame] ~ Option[Bonus]] =
+    repN(10, frame <~ "|") ~ ("|" ~> opt(bonusBalls))
+```

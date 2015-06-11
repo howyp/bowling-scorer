@@ -8,7 +8,7 @@ trait BowlingScoreCalculator {
   }
 
   def ball1(frames: List[Frame]): Int = frames match {
-    case Nil                => 0
+    case Nil                 => 0
     case Regular(b1, _) :: _ => b1
     case Bonus(b1, _)   :: _ => b1
     case Spare(b1)      :: _ => b1
@@ -16,7 +16,7 @@ trait BowlingScoreCalculator {
   }
 
   def ball2(frames: List[Frame]): Int = frames match {
-    case Nil                   => 0
+    case Nil                    => 0
     case Regular(_, b2) :: _    => b2
     case Bonus(_, b2)   :: _    => b2
     case Spare(b1)      :: _    => 10 - b1
