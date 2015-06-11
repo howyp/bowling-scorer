@@ -142,6 +142,49 @@ def bonusBalls: Parser[Bonus] =
 Finally, we need a parser for the whole scorecard. A `game` is exactly 10 `frame`s, separated by `|`, followed by the final `|` and optionally some `bonusBalls`:
 
 ```scala
-  def game: Parser[List[Frame] ~ Option[Bonus]] =
-    repN(10, frame <~ "|") ~ ("|" ~> opt(bonusBalls))
+def game: Parser[List[Frame] ~ Option[Bonus]] =
+  repN(10, frame <~ "|") ~ ("|" ~> opt(bonusBalls))
 ```
+
+####3. Calculating - `BowlingScoreCalculator`
+
+Once we have parsed into this structure, the calculator turns out to be pretty simple to implement with a single pattern match. 
+
+The match travels through the list matching its `head`, scoring it and then adding the score of the `tail` recursively. Let's look at each of these matches individuallly:
+
+```scala
+def score(frames: List[Frame]): Int = frames match {
+  case Regular(b1, b2) :: tail  => b1 + b2 + score(tail)
+  case Spare(_)        :: tail  => 10 + ball1(tail) + score(tail)
+  case Strike          :: tail  => 10 + ball1(tail) + ball2(tail) + score(tail)
+  case Nil |
+       Bonus(_, _)     :: _     => 0
+}
+```
+First, we check if this frame is a `Regular`. If so, we add the points from both balls, plus the score of the remaining frames.
+
+Next, we handle `Spare` frames by awarding `10` points plus the points of the next ball in the tail, plus the score of the remaining frames. `Strike` frames are handled in a very similar way, but include the score of the next *two* balls.
+
+Last, we check if we have been passed an empty list (`Nil`), or if we have reached the `Bonus` balls. In both of these cases, we award `0` points (as bonus balls don't directly affect the score), and then finish the recursion.
+
+But how do we work out the score of the next balls? More pattern matching!
+
+```scala
+def ball1(frames: List[Frame]): Int = frames match {
+  case Nil                 => 0
+  case Regular(b1, _) :: _ => b1
+  case Bonus(b1, _)   :: _ => b1
+  case Spare(b1)      :: _ => b1
+  case Strike         :: _ => 10
+}
+
+def ball2(frames: List[Frame]): Int = frames match {
+  case Nil                    => 0
+  case Regular(_, b2) :: _    => b2
+  case Bonus(_, b2)   :: _    => b2
+  case Spare(b1)      :: _    => 10 - b1
+  case Strike         :: tail => ball1(tail)
+}
+```
+
+Calculating the score of the next ball is pretty straightforward. However, for the second ball we need to look at the second frame in the case of a strike
