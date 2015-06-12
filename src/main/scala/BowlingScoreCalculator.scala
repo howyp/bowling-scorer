@@ -1,8 +1,8 @@
 trait BowlingScoreCalculator {
   def score(frames: List[Frame]): Int = frames match {
-    case (r: Regular) :: remain   => r.balls.sum + score(remain)
-    case (s: Spare)   :: remain   => s.balls.sum + balls(remain).head + score(remain)
-    case Strike       :: remain   => Strike.balls.sum + balls(remain).take(2).sum + score(remain)
+    case (f: Regular) :: remain   => f.balls.sum + score(remain)
+    case (f: Spare)   :: remain   => f.balls.sum + balls(remain).head + score(remain)
+    case (f@ Strike)  :: remain   => f.balls.sum + balls(remain).take(2).sum + score(remain)
     case Bonus(_, _)  :: _  | Nil => 0
   }
 

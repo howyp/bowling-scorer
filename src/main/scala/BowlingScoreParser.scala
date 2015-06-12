@@ -24,6 +24,6 @@ case class BowlingScoreParser() extends RegexParsers {
     point            ^^  {           p1 => Bonus(p1, 0)       }
 
   def point: Parser[Int] = miss | number
-  def number: Parser[Int] = "[1-9]".r ^^ (_.toInt)
   def miss: Parser[Int] = "-" ^^^ 0
+  def number: Parser[Int] = "[1-9]".r ^^ (_.toInt)
 }
